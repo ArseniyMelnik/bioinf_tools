@@ -49,6 +49,7 @@ print(filtered)
 ```
 
 ## Project Structure
+```
 your-repo/
 │
 ├── main.py             # Main interface
@@ -56,7 +57,7 @@ your-repo/
 │   ├── dna_rna_tools.py  # DNA/RNA sequence operations
 │   └── filter_fastq.py   # FASTQ filtering utilities
 └── README.md
-
+```
 
 ## Contact
 
