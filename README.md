@@ -9,9 +9,10 @@ This package provides tools for working with DNA/RNA sequences and FASTQ files. 
 Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/your-repo.git
-cd your-repo
+git clone https://github.com/ArseniyMelnik/bioinf_tools.git
+cd bioinf_tools
 ```
+
 ## Usage examples
 ### DNA/RNA tools
 ```python
