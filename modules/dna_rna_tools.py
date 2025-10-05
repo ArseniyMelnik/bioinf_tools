@@ -3,15 +3,22 @@
 DNA_BASES = {"A", "T", "G", "C"}
 RNA_BASES = {"A", "U", "G", "C"}
 
+
 def is_nucleic_acid(sequence):
     sequence_upper = sequence.upper()
-    return set(sequence_upper).issubset(DNA_BASES) or set(sequence_upper).issubset(RNA_BASES)
+    return (set(sequence_upper).issubset(DNA_BASES)
+            or set(sequence_upper).issubset(
+        RNA_BASES
+    ))
+
 
 def transcribe(sequence):
     if not is_nucleic_acid(sequence):
         print("Invalid sequence")
         return None
-    return "".join("U" if n=="T" else "u" if n=="t" else n for n in sequence)
+    return "".join("U" if n == "T"
+                   else "u" if n == "t" else n for n in sequence)
+
 
 def reverse(sequence):
     if not is_nucleic_acid(sequence):
@@ -19,20 +26,41 @@ def reverse(sequence):
         return None
     return sequence[::-1]
 
+
 def complement(sequence):
     if not is_nucleic_acid(sequence):
         print("Invalid sequence")
         return None
-    DNA_COMP = {"A":"T","T":"A","G":"C","C":"G","a":"t","t":"a","g":"c","c":"g"}
-    RNA_COMP = {"A":"U","U":"A","G":"C","C":"G","a":"u","u":"a","g":"c","c":"g"}
+    DNA_COMP = {
+        "A": "T",
+        "T": "A",
+        "G": "C",
+        "C": "G",
+        "a": "t",
+        "t": "a",
+        "g": "c",
+        "c": "g",
+    }
+    RNA_COMP = {
+        "A": "U",
+        "U": "A",
+        "G": "C",
+        "C": "G",
+        "a": "u",
+        "u": "a",
+        "g": "c",
+        "c": "g",
+    }
     comp_dict = RNA_COMP if "U" in sequence or "u" in sequence else DNA_COMP
     return "".join(comp_dict[n] for n in sequence)
+
 
 def reverse_complement(sequence):
     if not is_nucleic_acid(sequence):
         print("Invalid sequence")
         return None
     return complement(reverse(sequence))
+
 
 def run_dna_rna_tools(*args):
     *sequences, procedure = args
@@ -45,4 +73,4 @@ def run_dna_rna_tools(*args):
     }
     func = func_map[procedure]
     results = [func(seq) for seq in sequences]
-    return results[0] if len(results)==1 else results
+    return results[0] if len(results) == 1 else results
