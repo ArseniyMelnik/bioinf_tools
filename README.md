@@ -1,5 +1,9 @@
 # bioinf_tools
 
+<p align="center">
+  <img src="logo.png" alt="bioinf_tools logo" width="256"/>
+</p>
+
 **bioinf_tools** is a set of tools for working with nucleic acids, FASTQ files, and bioinformatics data. The package provides functionality for sequence analysis, filtering, and file processing.
 ---
 
