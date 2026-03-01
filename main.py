@@ -138,13 +138,13 @@ def filter_fastq(input_fastq: str,
 
     filtered = {}
 
-    # Счётчики
+    # Counts
     total_count = 0
     passed_count = 0
 
     with open(output_fastq, "w") as out_handle:
         for record in SeqIO.parse(input_fastq, "fastq"):
-            total_count += 1   # учитываем все риды
+            total_count += 1
 
             seq_len = len(record.seq)
             if seq_len == 0:
