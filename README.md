@@ -1,124 +1,123 @@
-# bioinf_tools
+# Bioinformatics Sequence Tools
 
-<p align="center">
-  <img src="logo.png" alt="bioinf_tools logo" width="256"/>
-</p>
+## Classes
 
-**bioinf_tools** is a set of tools for working with nucleic acids, FASTQ files, and bioinformatics data. The package provides functionality for sequence analysis, filtering, and file processing.
+### `BiologicalSequence`
+
+* Abstract base class for working with biological sequences.
+* Supports:
+
+  * `len(seq)` — sequence length
+  * `seq[index]` and `seq[start:stop]` — indexing and slicing
+  * `print(seq)` — nicely formatted output
+  * `check_alphabet()` — validates sequence characters
+
+### `NucleicAcidSequence`
+
+* Parent class for DNA and RNA sequences.
+* Methods:
+
+  * `complement()` — returns complementary sequence
+  * `reverse()` — returns reversed sequence
+  * `reverse_complement()` — returns reverse-complemented sequence
+* **Direct instantiation is not recommended.** Use subclasses `DNASequence` or `RNASequence`.
+
+### `DNASequence` (inherits from NucleicAcidSequence)
+
+* Additional method:
+
+  * `transcribe()` — returns an `RNASequence` object
+
+### `RNASequence` (inherits from NucleicAcidSequence)
+
+* Inherits complement and reverse methods from the parent class
+
+### `AminoAcidSequence`
+
+* Methods:
+
+  * `aa_composition()` — returns the percentage composition of each amino acid
+  * `len(seq)` — sequence length
+  * `seq[start:stop]` — slicing
+  * Additional methods can include hydrophobicity, molecular weight, etc.
+
 ---
 
-### 1. DNA/RNA Sequence Operations (`dna_rna_tools.py`)
-- Check if a sequence is valid DNA or RNA
-- Transcribe DNA to RNA (preserving case)
-- Reverse a sequence
-- Generate complementary sequences
-- Generate reverse-complement sequences
+## Usage Examples
 
-### 2. FASTQ Filtering (`filter_fastq.py`)
-- Filter sequences by GC content
-- Filter sequences by length
-- Filter sequences by mean Phred33 quality
-- Read FASTQ files into a dictionary `{name: (sequence, quality)}`
-- Write filtered sequences back to FASTQ files
-- Safe file handling (prevents overwriting existing files)
+```python
+from main import DNASequence, RNASequence, AminoAcidSequence
 
-### 3. Bioinformatics File Processing (`bio_files_processor.py`)
-- Convert multi-line FASTA files into single-line FASTA
-- Parse BLAST txt output to extract top hit descriptions
+# DNA example
+dna = DNASequence("ATGCGT")
+print("Complement:", dna.complement())
+rna = dna.transcribe()
+print("Reverse complement of RNA:", rna.reverse_complement())
+
+# Amino acid example
+protein = AminoAcidSequence("ACDEFGHIK")
+print("Amino acid composition (%):", protein.aa_composition())
+print("Length:", len(protein))
+print("Slice (0:5):", protein[:5])
+```
+
 ---
 
-## Installation
+## FASTQ Filtering Function
 
-Clone the repository:
+### `filter_fastq(input_fastq, output_fastq, gc_bounds=(0,100), length_bounds=(0,inf), quality_threshold=0)`
 
-```bash
-git clone https://github.com/ArseniyMelnik/bioinf_tools.git
-cd bioinf_tools
-```
+Filters FASTQ files using **Biopython** according to:
 
-## Usage examples
-### DNA/RNA tools
-```python
-from main import run_dna_rna_tools
+* **GC content**: Only sequences with GC percentage within `gc_bounds` are kept.
+* **Sequence length**: Only sequences with length within `length_bounds` are kept.
+* **Average Phred quality**: Only sequences with mean quality ≥ `quality_threshold` are kept.
 
-seq = "ATGCGT"
-result = run_dna_rna_tools(seq, "reverse_complement")
-print(result)
+**Parameters:**
 
-# Available procedures:
-# - is_nucleic_acid
-# - transcribe
-# - reverse
-# - complement
-# - reverse_complement
-```
-### FASTQ filtering
+* `input_fastq` — path to the input FASTQ file (e.g., `data/example.fastq`)
+* `output_fastq` — path for the filtered FASTQ file (e.g., `filtered/example_filtered.fastq`)
+* `gc_bounds` — tuple `(min, max)` or single value for maximum GC %
+* `length_bounds` — tuple `(min, max)` or single value for maximum sequence length
+* `quality_threshold` — minimum average Phred quality score
+
+**Returns:**
+
+A dictionary with statistics and filtered records:
 
 ```python
-from main import filter_fastq, read_fastq, write_fastq
-
-# Read sequences from a FASTQ file
-seqs = read_fastq("data/example.fastq")
-
-# Filter sequences by GC content, length, and quality
-filtered = filter_fastq(seqs, gc_bounds=(40,60), length_bounds=(5,1000), quality_threshold=30)
-
-# Save filtered sequences to a new FASTQ file
-write_fastq(filtered, "filtered/filtered_output.fastq")
-
-# Parameters for filtering:
-# - gc_bounds — tuple (min, max) or single number (upper bound)
-# - length_bounds — tuple (min, max) or single number (upper bound)
-# - quality_threshold — minimum mean Phred33 quality
+{
+    "total": total_reads,           # total reads processed
+    "passed": passed_reads,         # reads that passed all filters
+    "filtered_records": {           # dictionary of SeqRecord objects that passed
+        sequence_id: SeqRecord,
+        ...
+    }
+}
 ```
 
-### Bioinformatics File Processing
+**Example:**
 
 ```python
-from bio_files_processor import convert_multiline_fasta_to_oneline, parse_blast_output
+from main import filter_fastq
 
-# Convert multiline FASTA to single-line FASTA
-convert_multiline_fasta_to_oneline("input.fasta", "output.fasta")
+result = filter_fastq(
+    input_fastq="data/example.fastq",
+    output_fastq="filtered/example_filtered.fastq",
+    gc_bounds=(40, 60),
+    length_bounds=(50, 150),
+    quality_threshold=20
+)
 
-# Parse BLAST output to extract top hits
-parse_blast_output("blast_results.txt", "top_hits.txt")
-```
-### Notes on Data Folders
-
-data/ — this directory is used to store input biological data files, such as FASTQ or FASTA
-You can place your test or working datasets here.
-
-filtered/ — this folder is automatically created when running filtering functions (e.g., filter_fastq).
-It contains the output files produced after sequence filtering.
-The script ensures that:
-
-existing files will not be overwritten accidentally;
-
-the folder is created if it doesn’t exist.
-
-## Project Structure
-```
-bioinf_tools/
-│
-├── main.py                # Main interface script
-├── bio_files_processor.py # Additional bioinformatics file processing utilities
-├── README.md              # Project documentation
-│
-├── modules/               # Internal modules
-│   ├── dna_rna_tools.py   # DNA/RNA sequence operations
-│   └── filter_fastq.py    # FASTQ filtering utilities
-│
-├── data/                  # Input files (e.g., .fastq, .fasta, .gbk)
-│   └── example.fastq
-│
-└── filtered/              # Automatically created folder for filtered outputs
-    └── example_filtered.fastq
-
+print("Total reads:", result["total"])
+print("Reads passed filter:", result["passed"])
 ```
 
-## Contact
+**Notes:**
 
-Author: Arseniy Melnik
-Email: 14amelnikd@gmail.com
+* Input FASTQ files should have matching sequence and quality string lengths.
+* Output FASTQ files are automatically created in the specified folder (`filtered/` in this repository).
+* Requires **Biopython**: `pip install biopython` or 'pip install -r requirements.txt'
 
-GitHub: ArseniyMelnik
+---
+
