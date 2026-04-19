@@ -1,7 +1,19 @@
 import abc
+import os
+import argparse
+import logging
 from Bio import SeqIO
 from Bio.SeqUtils import gc_fraction
-import os
+
+
+# ======================================
+# Logging setup
+# ======================================
+logging.basicConfig(
+    filename="fastq_filter.log",
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s"
+)
 
 # ======================================
 # BiologicalSequence
@@ -124,8 +136,11 @@ def filter_fastq(input_fastq: str,
         }
     """
 
+    logging.info(f"Started filtering: {input_fastq}")
+
     # input check
     if not os.path.exists(input_fastq):
+        logging.error(f"File not found: {input_fastq}")
         raise FileNotFoundError(f"Input FASTQ file not found: {input_fastq}")
 
     # Normalize bounds
@@ -161,8 +176,48 @@ def filter_fastq(input_fastq: str,
                 filtered[record.id] = record
                 SeqIO.write(record, out_handle, "fastq")
 
+    logging.info(f"Finished filtering. Total: {total_count}, Passed: {passed_count}")
+
     return {
         "total": total_count,
         "passed": passed_count,
         "filtered_records": filtered
     }
+
+# ======================================
+# CLI
+# ======================================
+def parse_args():
+    parser = argparse.ArgumentParser(description="FASTQ filtering tool")
+
+    parser.add_argument("--input", required=True, help="Input FASTQ file")
+    parser.add_argument("--output", required=True, help="Output FASTQ file")
+
+    parser.add_argument("--gc-min", type=float, default=0)
+    parser.add_argument("--gc-max", type=float, default=100)
+
+    parser.add_argument("--len-min", type=int, default=0)
+    parser.add_argument("--len-max", type=int, default=int(1e9))
+
+    parser.add_argument("--qual", type=float, default=0)
+
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
+
+    result = filter_fastq(
+        input_fastq=args.input,
+        output_fastq=args.output,
+        gc_bounds=(args.gc_min, args.gc_max),
+        length_bounds=(args.len_min, args.len_max),
+        quality_threshold=args.qual
+    )
+
+    print(f"Total reads: {result['total']}")
+    print(f"Passed reads: {result['passed']}")
+
+
+if __name__ == "__main__":
+    main()

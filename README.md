@@ -119,5 +119,70 @@ print("Reads passed filter:", result["passed"])
 * Output FASTQ files are automatically created in the specified folder (`filtered/` in this repository).
 * Requires **Biopython**: `pip install biopython` or 'pip install -r requirements.txt'
 
+
+## Command Line Usage
+
+### The tool can be executed directly from the command line using argparse:
+```Bash
+python main.py \
+  --input data/example.fastq \
+  --output filtered/example_filtered.fastq \
+  --gc-min 40 \
+  --gc-max 60 \
+  --len-min 50 \
+  --len-max 150 \
+  --qual 20
+```
+**Arguments:**
+`--input` — path to input FASTQ file (required)
+`--output` — path to output FASTQ file (required)
+`--gc-min` / `--gc-max` — GC content range
+`--len-min` / `--len-max` — sequence length range
+`--qual` — minimum average Phred quality score
+
+You can also view help:
+
+```python
+python main.py --help
+```
+
+## Logging
+
+The tool writes logs to a file:
+
+```
+fastq_filter.log
+```
+
+Logging includes:
+
+* **INFO** — start and completion of filtering
+* **ERROR** — file-related issues (e.g., missing input file)
+
+Example log entries:
+
+```
+2026-04-19 12:00:00 [INFO] Started filtering: data/example.fastq
+2026-04-19 12:00:01 [INFO] Finished filtering. Total: 1000, Passed: 850
+```
+
+## Testing
+
+Tests are implemented using `pytest` and located in the `tests/` directory.
+
+Run tests with:
+
+```Bash
+pytest
+```
+**Covered functionality:**
+* DNA and RNA sequence operations
+* Amino acid composition
+* FASTQ filtering:
+    * GC content
+    * sequence length
+    * quality filtering
+* Output file creation
+* Error handling
 ---
 
